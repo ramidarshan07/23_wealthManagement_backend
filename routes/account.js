@@ -7,13 +7,28 @@ const router = express.Router();
 router.use(authenticate);
 
 const buildAccountSummary = (account) => {
+    const isLentAccount = account.accountType === 'lent';
+    
     const totals = account.transactions.reduce((acc, txn) => {
-        if (txn.type === 'borrow') {
-            acc.totalBorrowed += txn.amount;
-        } else if (txn.type === 'repay') {
-            acc.totalRepaid += txn.amount;
-            if (!acc.lastRepaymentDate || txn.date > acc.lastRepaymentDate) {
-                acc.lastRepaymentDate = txn.date;
+        if (isLentAccount) {
+            // For lent accounts: lent = money given, received = money received back
+            if (txn.type === 'lent') {
+                acc.totalBorrowed += txn.amount; // Total lent
+            } else if (txn.type === 'received') {
+                acc.totalRepaid += txn.amount; // Total received back
+                if (!acc.lastRepaymentDate || txn.date > acc.lastRepaymentDate) {
+                    acc.lastRepaymentDate = txn.date;
+                }
+            }
+        } else {
+            // For borrowed accounts: borrow = money taken, repay = money paid back
+            if (txn.type === 'borrow') {
+                acc.totalBorrowed += txn.amount;
+            } else if (txn.type === 'repay') {
+                acc.totalRepaid += txn.amount;
+                if (!acc.lastRepaymentDate || txn.date > acc.lastRepaymentDate) {
+                    acc.lastRepaymentDate = txn.date;
+                }
             }
         }
         return acc;
@@ -99,7 +114,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/accounts
 router.post('/', async (req, res) => {
     try {
-        const { name, initialAmount, date, paymentChannel, note, description } = req.body;
+        const { name, initialAmount, date, paymentChannel, note, description, accountType } = req.body;
 
         if (!name || !name.trim()) {
             return res.status(400).json({
@@ -116,15 +131,18 @@ router.post('/', async (req, res) => {
         }
 
         const transactionDate = date ? new Date(date) : new Date();
+        const accType = accountType === 'lent' ? 'lent' : 'borrowed';
+        const initialTransactionType = accType === 'lent' ? 'lent' : 'borrow';
 
         const account = new Account({
             userId: req.user._id,
             name: name.trim(),
             description: description?.trim() || '',
+            accountType: accType,
             transactions: [
                 {
                     amount: Number(initialAmount),
-                    type: 'borrow',
+                    type: initialTransactionType,
                     paymentChannel: paymentChannel?.trim() || 'Cash',
                     note: note?.trim() || 'Opening balance',
                     date: transactionDate
@@ -163,15 +181,14 @@ router.post('/:id/transactions', async (req, res) => {
             });
         }
 
-        if (!['borrow', 'repay'].includes(type)) {
+        if (!['borrow', 'repay', 'lent', 'received'].includes(type)) {
             return res.status(400).json({
                 success: false,
-                message: 'Transaction type must be borrow or repay'
+                message: 'Invalid transaction type'
             });
         }
 
-        const transactionDate = date ? new Date(date) : new Date();
-
+        // Validate transaction type based on account type
         const account = await Account.findOne({
             _id: req.params.id,
             userId: req.user._id
@@ -183,6 +200,24 @@ router.post('/:id/transactions', async (req, res) => {
                 message: 'Account not found'
             });
         }
+
+        if (account.accountType === 'lent') {
+            if (!['lent', 'received'].includes(type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'For lent accounts, use "lent" or "received" transaction types'
+                });
+            }
+        } else {
+            if (!['borrow', 'repay'].includes(type)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'For borrowed accounts, use "borrow" or "repay" transaction types'
+                });
+            }
+        }
+
+        const transactionDate = date ? new Date(date) : new Date();
 
         account.transactions.push({
             amount: Number(amount),

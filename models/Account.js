@@ -8,7 +8,7 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['borrow', 'repay'],
+        enum: ['borrow', 'repay', 'lent', 'received'],
         required: true
     },
     paymentChannel: {
@@ -47,6 +47,11 @@ const accountSchema = new mongoose.Schema({
         type: String,
         trim: true,
         default: ''
+    },
+    accountType: {
+        type: String,
+        enum: ['borrowed', 'lent'],
+        default: 'borrowed'
     },
     status: {
         type: String,
