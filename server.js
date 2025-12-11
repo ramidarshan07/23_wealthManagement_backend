@@ -1,34 +1,37 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const categoryRoutes = require('./routes/category');
-const paymentMethodRoutes = require('./routes/paymentMethod');
-const amountTypeRoutes = require('./routes/amountType');
-const expenseRoutes = require('./routes/expense');
-const balanceRoutes = require('./routes/balance');
-const paymentMethodBalanceRoutes = require('./routes/paymentMethodBalance');
-const savingRoutes = require('./routes/saving');
-const accountRoutes = require('./routes/account');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const path = require("path");
+const authRoutes = require("./routes/auth");
+const categoryRoutes = require("./routes/category");
+const paymentMethodRoutes = require("./routes/paymentMethod");
+const amountTypeRoutes = require("./routes/amountType");
+const expenseRoutes = require("./routes/expense");
+const balanceRoutes = require("./routes/balance");
+const paymentMethodBalanceRoutes = require("./routes/paymentMethodBalance");
+const savingRoutes = require("./routes/saving");
+const accountRoutes = require("./routes/account");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Added static middleware
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/payment-methods', paymentMethodRoutes);
-app.use('/api/amount-types', amountTypeRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/balance', balanceRoutes);
-app.use('/api/payment-method-balances', paymentMethodBalanceRoutes);
-app.use('/api/savings', savingRoutes);
-app.use('/api/accounts', accountRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/payment-methods", paymentMethodRoutes);
+app.use("/api/amount-types", amountTypeRoutes);
+app.use("/api/expenses", expenseRoutes);
+app.use("/api/balance", balanceRoutes);
+app.use("/api/payment-method-balances", paymentMethodBalanceRoutes);
+app.use("/api/savings", savingRoutes);
+app.use("/api/accounts", accountRoutes);
+app.use("/api/user", require("./routes/user"));
 
-app.get('/', (req, res) => {
-    res.send(`
+app.get("/", (req, res) => {
+  res.send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -62,20 +65,18 @@ app.get('/', (req, res) => {
     `);
 });
 
-
-
-
 const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI, {
+mongoose
+  .connect(MONGO_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-    .then(() => {
-        console.log('MongoDB connected');
-        const PORT = process.env.PORT;
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    })
-    .catch(err => {
-        console.error('MongoDB connection error:', err);
-    });
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("MongoDB connected");
+    const PORT = process.env.PORT;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
