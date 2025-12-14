@@ -33,34 +33,54 @@ app.use("/api/user", require("./routes/user"));
 app.get("/", (req, res) => {
   res.send(`
         <!DOCTYPE html>
-        <html>
-        <head>
+          <html>
+          <head>
             <title>WealthManagement</title>
             <style>
-                body {
-                    margin: 0;
-                    height: 95vh;
-                    background: linear-gradient(to top, rgb(255,107,53), rgb(57,35,28));
-                    color: white;
-                    font-family: Arial, sans-serif;
-                    font-size: 32px;
-                    text-align:center;
-                }
+              body {
+              margin: 0;
+              height: 95vh;
+              background: linear-gradient(to top, rgba(163, 252, 79, 1), rgba(28, 57, 32, 1));
+              color: white;
+              font-family: Arial, sans-serif;
+              font-size: 32px;
+              text-align:center;
+              }
+              a {
+              color: #ffbb3b;
+              text-decoration: none;
+              font-weight: bold;
+              }
+              a:hover {
+              text-decoration: underline;
+              }
             </style>
-        </head>
-        <body>
+          </head>
+          <body>
 
             <h2 style="
-                background: linear-gradient(to right, white, orange);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                font-weight: bold;
+              background: linear-gradient(to right, white, green);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              font-weight: bold;
+              font-family: verdana;
             ">
-                Welcome to Wealth Management
+              Welcome to Wealth Management
             </h2>
+
             <span>Backend is Running</span><br><br>
+
+            <span style="font-size:22px;">
+              To experience this web app,
+              <a href="https://wealth-management-darshan.vercel.app/" target="_blank">
+                click here
+              </a>
+            </span>
+            <br><br>
+
             <span style="font-size:20px;">Made with ❤️ by Darshan Rami</span>
-        </body>
+
+          </body>
         </html>
     `);
 });
