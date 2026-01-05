@@ -12,6 +12,7 @@ const balanceRoutes = require("./routes/balance");
 const paymentMethodBalanceRoutes = require("./routes/paymentMethodBalance");
 const savingRoutes = require("./routes/saving");
 const accountRoutes = require("./routes/account");
+const noteRoutes = require("./routes/note");
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,7 @@ app.use("/api/balance", balanceRoutes);
 app.use("/api/payment-method-balances", paymentMethodBalanceRoutes);
 app.use("/api/savings", savingRoutes);
 app.use("/api/accounts", accountRoutes);
+app.use("/api/notes", noteRoutes);
 app.use("/api/user", require("./routes/user"));
 
 app.get("/", (req, res) => {
