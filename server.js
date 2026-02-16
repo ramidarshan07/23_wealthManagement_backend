@@ -31,6 +31,8 @@ app.use("/api/savings", savingRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/user", require("./routes/user"));
+app.use("/api/game2048", require("./routes/game2048"));
+app.use("/api/snakegame", require("./routes/snakeGame"));
 
 app.get("/", (req, res) => {
   res.send(`
